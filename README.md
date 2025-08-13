@@ -3,7 +3,9 @@
 this is a mini project that helps manage and track our tasks
 
 ##project URL
-view this code on GitHub(https://github.com/gabi-z21/task_tracker)
+
+[View this project on GitHub](https://github.com/gabi-z21/task_tracker)
+
 
 
 # in this project files can be
