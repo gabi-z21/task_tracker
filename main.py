@@ -1,89 +1,78 @@
 import json
 import os
-""" this is a mini project to make a task tracker than can add update and delete tasks """
+import sys 
+""" this is a mini project to make a task tracker that can add, update, save, load 
+and delete tasks """
 class TaskTracker:
-    def __init__(self, tasks):
-        self.tasks = tasks
-        self.load_tasks()
+    def __init__(self, file_name = "tasks.json"):
+        self.file_name = file_name
+        self.tasks = []
+        self.load_tasks() #load tasks from files when object is created
 
     def load_tasks(self):
         try:
-            if os.path.exists("tasks.txt"):
-               with open("tasks.txt", "r") as file:
+            if os.path.exists(self.file_name): #check if file exists
+               with open(self.file_name, "r") as file:
                   self.tasks = json.load(file)
-        except:
+        except json.JSONDecodeError: # if file is not found or any other error occurs, start with empty list
             self.tasks = []
 
+
     def save_tasks(self):
-        with open("tasks.txt", "w") as file:
-            json.dump(self.tasks, file)
-
+        with open(self.file_name , "w") as file:
+            json.dump(self.tasks, file, indent = 4) # save tasks to file 
+            print("tasks saved successfully!")
+#add task to file
     def add_task(self, task):
-        self.tasks.append(task)
+        self.tasks.append({"task": task, "completed": False}) 
         self.save_tasks()
-        print("task added succesfully!")
-
+        print(f"Task '{task}' added successfully!")
+#delete task from file
     def delete_task(self, task):
-        if task in self.tasks:
-            self.tasks.remove(task)
-            self.save_tasks()
-            print("task is delted")
+        for t in self.tasks:
+            if t["task"] == task:
+                self.tasks.remove(t)
+                self.save_tasks()
+                print(f"Task deleted: {t['task']}")
+                return
+        print("task not found")
+#update an already existing task
+    def update_task(self, old_task, new_task):
+        for t in self.tasks:
+            if t["task"] == old_task:
+               t["task"] = new_task
+               self.save_tasks()
+               print(f"Task updated to '{new_task}'.")
+               return
+           
+        print("the task you entered was not found")
+    
+#view all tasks in the file
+    def list_tasks(self):
+        if self.tasks:
+            for i , task in enumerate(self.tasks, start = 1):
+               status = "✔"  if task["completed"] else "❌"
+               print(f"{i}. {task['task']} [{status}]")
         else:
-            print("task not found")
+            print("No tasks found.")
 
-    def update_task(self, old_task, task):
-        if old_task in self.tasks:
-            self.old_task = old_task
-            self.task = task
-            index = self.tasks.index(old_task)
-            self.tasks[index] = task
-            self.save_tasks()
-            print("you have updated the task")
-        else:
-            print("the task you entered was not found")
+#CLI file handling
+if len(sys.argv) < 2:
+    print("Usage: python main.py [add|delete|update|list] ...")
+    sys.exit()
 
+command = sys.argv[1].lower()
+tracker = TaskTracker()
 
-    def view_tasks(self):
-       if self.tasks:
-           for task in self.tasks:
-               print(task)
-       else:
-           print("No task was found!")
-
-task_tracker = TaskTracker([])
+if command == "add" and len(sys.argv) >= 3:
+    tracker.add_task(" ".join(sys.argv[2:]))
+elif command == "delete" and len(sys.argv) >= 3:
+    tracker.delete_task(" ".join(sys.argv[2:]))
+elif command == "update" and len(sys.argv) >= 4:
+    tracker.update_task(sys.argv[2], " ".join(sys.argv[3:]))
+elif command == "list":
+    tracker.list_tasks()
+else:
+    print("Invalid command or missing arguments.")
 
 
-while True:
-    print("Task tracker menu\n")
-    print("1.Add task\n")
-    print("2.Delete task\n")
-    print("3.Update task\n")
-    print("4.View tasks\n")
-    print("5.Exit\n")
-
-    choice = input("Enter your choice: ")
-
-  
-
-    match choice:
-        case "1":
-            task = input("Enter the task to add: ")
-            task_tracker.add_task(task)
-            
-        case "2":
-            task = input("Enter the task to delete: ")
-            task_tracker.delete_task(task)
-          
-        case "3":
-            old_task = input("Enter the task to update: ")
-            task = input("Enter the new task: ")
-            task_tracker.update_task(old_task, task)
-          
-        case "4":
-            task_tracker.view_tasks()
-        case "5":
-            print("Exiting...")
-            break
-
-
-task_tracker.view_tasks()
