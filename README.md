@@ -2,7 +2,7 @@
 
 this is a mini project that helps manage and track our tasks
 
-Project URL: https://github.com/gabi-z21/task_tracker
+Project URL:https://roadmap.sh/projects/task-tracker
 
 
 
